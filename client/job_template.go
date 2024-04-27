@@ -70,7 +70,7 @@ func (jt *JobTemplateService) Launch(id int, data map[string]interface{}, params
 	}
 
 	// in case invalid job id return
-	if result.Job == 0 {
+	if result.Job == 0 && result.Type != "workflow_job" {
 		return nil, errors.New("invalid job id 0")
 	}
 
