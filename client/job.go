@@ -6,6 +6,24 @@ import (
 	"fmt"
 )
 
+type jobResponse struct {
+	ID         int     `json:"id"`
+	Type       string  `json:"type"`
+	URL        string  `json:"url"`
+	Created    string  `json:"created"`
+	Modified   string  `json:"modified"`
+	Name       string  `json:"name"`
+	SourcePath string  `json:"source_path"`
+	Timeout    int     `json:"timeout"`
+	LaunchType string  `json:"launch_type"`
+	Status     string  `json:"status"`
+	Failed     bool    `json:"failed"`
+	Started    *string `json:"started"`
+	Finished   *string `json:"finished"`
+	CanceledOn *string `json:"canceled_on"`
+	Elapsed    float64 `json:"elapsed"`
+}
+
 // Enum of job statuses.
 const (
 	JobStatusNew        = "new"
@@ -41,11 +59,28 @@ type CancelJobResponse struct {
 }
 
 const jobAPIEndpoint = "/api/v2/jobs/"
+const workflowJobsAPIEndpoint = "/api/v2/workflow_jobs/"
 
 // GetJob shows the details of a job.
-func (j *JobService) GetJob(id int, params map[string]string) (*Job, error) {
-	result := new(Job)
+func (j *JobService) GetJob(id int, params map[string]string) (*jobResponse, error) {
+	result := new(jobResponse)
 	endpoint := fmt.Sprintf("%s%d/", jobAPIEndpoint, id)
+	resp, err := j.client.Requester.GetJSON(endpoint, result, params)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := CheckResponse(resp); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// GetWorkflowJob shows the details of a job.
+func (j *JobService) GetWorkflowJob(id int, params map[string]string) (*jobResponse, error) {
+	result := new(jobResponse)
+	endpoint := fmt.Sprintf("%s%d/", workflowJobsAPIEndpoint, id)
 	resp, err := j.client.Requester.GetJSON(endpoint, result, params)
 	if err != nil {
 		return nil, err
